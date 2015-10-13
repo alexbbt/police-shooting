@@ -35,6 +35,7 @@ var map = (function() {
 
 	// Loop through your data and add the appropriate layers and points
 	var customBuild = function(data) {
+		data = JSON.parse(data);
 		console.log(data);
 		// Be sure to add each layer to the map
 		var groups = {};
