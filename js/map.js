@@ -27,7 +27,7 @@ var map = (function() {
 	var getData = function() {
 
 	  // Execute an AJAX request to get the data in data/response.js
-		$.get(" data/response.json", customBuild);
+		$.get("data/response.json", customBuild);
 
 	  // When your request is successful, call your customBuild function
 
