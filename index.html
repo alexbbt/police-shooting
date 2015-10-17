@@ -17,17 +17,40 @@
     <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
 
     <!-- Custom files -->
+    <script type="text/javascript" src="js/leaflet.markercluster.js"></script>
     <script type="text/javascript" src="js/map.js"></script>
+    <link rel="stylesheet" href="css/MarkerCluster.Default.css"/>
     <link rel="stylesheet" href="css/main.css"/>
   </head>
   <body>
+    <div id="loading"><img src="img/loading.gif"></div>
     <!-- You may want to put your title and additional informaiton here -->
-    <div class="container">
-      <!-- This is the div that your map will go in.  You'll need to reference its id -->
-      <div id="container">
-      <div id="map"></div>
+    <div id="container" class="container">
+      <div class="row text-center">
+        <h1>Police Shootings</h1>
+        <div class="col-xs-12 col-sm-4 col-sm-offset-4">
+          <div id="typeOuter" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+            <label for="type">View By:</label>
+          </div>
+          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+            <select name="type" id="type" class="form-control" data-style="btn-danger">
+              <option value="age">Age</option>
+              <option value="race">Race</option>
+              <option value="gender">Gender</option>
+              <option value="armed">Armed</option>
+            </select>
+          </div>
+        </div>
       </div>
+      <div class="row">
+        <div class="col-xs-12 col-sm-10 col-sm-offset-1">
+          <table class="table table-hover" id="table"></table>
+        </div>
+      </div>
+      <!-- This is the div that your map will go in.  You'll need to reference its id -->
     </div>
+    <div id="map"></div>
+    <div id="bottom"><a href="http://regressing.deadspin.com/deadspin-police-shooting-database-update-were-still-go-1627414202">Data from DeadSpin</a></div>
     <script>
       
       // This is where you should execute your drawMap function

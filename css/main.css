@@ -1,9 +1,74 @@
-/* You'll probably want to add some styles here */
-#container {
-	height:800px;
+html, body {
+	height: 100%;
 }
 
 #map {
 	width: 100%;
 	height: 100%;
+}
+
+#container {
+	position: absolute;
+	top: 0;
+	z-index: 1;
+	width: 100%;
+	background-color: rgba(0,0,0,.5);
+	color: white;
+	border-color: white;
+}
+#type {
+	color: white;
+	background-color: red;
+	border: none;
+}
+#typeOuter {
+	line-height: 34px;
+}
+
+.form-control:focus {
+  border-color: #FF0000;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(255, 0, 0, 0.6);
+}
+
+.table-hover tbody tr:hover td, .table-hover tbody tr:hover th {
+  background-color: red;
+}
+#loading {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 99;
+	background-color: rgba(0,0,0,.5);
+}
+
+#loading > img {
+	position: absolute;
+	left: 0;
+	right: 0;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#bottom {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	width: 100%;
+	background-color: black;
+	color: gray;
+	font-size: 10pt;
+}
+
+#bottom > a {
+	color: gray;
+}
+
+#table svg {
+	height: 12px;
+	width: 18px;
 }
