@@ -56,9 +56,9 @@ var map = (function() {
 	// Loop through your data and add the appropriate layers and points
 	var customBuild = function(newData, type) {
 		$('#loading').show();
-		//data = JSON.parse(data);
+		data = JSON.parse(newData);
 
-		data = newData;
+		//data = newData;
 
 		//console.log(map);
 		//unClustered.clearLayers();
