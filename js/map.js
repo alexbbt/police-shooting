@@ -47,7 +47,7 @@ var map = (function() {
 	var getData = function() {
 
 	  // Execute an AJAX request to get the data in data/response.js
-		$.get("data/response.json", function(data){customBuild(/*JSON.parse*/(data), 'age')});
+		$.get("data/response.json", function(data){customBuild(JSON.parse(data), 'age')});
 
 	  // When your request is successful, call your customBuild function
 
