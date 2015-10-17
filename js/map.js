@@ -47,7 +47,7 @@ var map = (function() {
 	var getData = function() {
 
 	  // Execute an AJAX request to get the data in data/response.js
-		$.get("data/response.json", function(data){customBuild(JSON.parse(data), 'age')});
+		$.get("data/response.json", function(data){customBuild(/*JSON.parse*/(data), 'age')});
 
 	  // When your request is successful, call your customBuild function
 
@@ -83,7 +83,7 @@ var map = (function() {
 				color: ( (data[i]['Hit or Killed?'] == 'Killed')   ? 'red' : 'white')
 				}
 			);
-			circle.bindPopup(fillPopup(data[i]));
+			circle.bindPopup(fillPopup(data[i]), {maxHeight: 250});
 			if (type == 'age') {
 				title = 'Age';
 				var variable = data[i]['Victim\'s Age'];
@@ -171,17 +171,20 @@ var map = (function() {
 
 	var fillPopup = function(data) {
 		var popup = "";
-		popup += (data['Timestamp'] ? (data['Timestamp'] + "<br>") : '');
-		popup += (data['Hit or Killed?']? ("Hit or Killed? " + data['Hit or Killed?'] + "<br>") : '');
-		popup += (data['Armed or Unarmed?'] ? ("Armed or Unarmed? " + data['Armed or Unarmed?'] + "<br>") : '');
-		popup += (data['Victim Name'] ? ("Victim Name: " + data['Victim Name'] + "<br>") : '');
-		popup += (data['Victim\'s Age'] ? ("Victim\'s Age: " + data['Victim\'s Age'] + "<br>") : '');
-		popup += (data['Victim\'s Gender'] ? ("Victim\'s Gender: " + data['Victim\'s Gender'] + "<br>") : '');
-		popup += (data['Race'] ? ("Race: " + data['Race'] + "<br>") : '');
-		popup += (data['Summary'] ? (data['Summary'] + "<br>") : '');
+		popup += (data['Agency Name'] ? ('<h4>'+ data['Agency Name'] + "</h4>") : '');
+		popup += (data['Timestamp'] ? ('<h5>'+ data['Timestamp'] + "</h5>") : '');
+		popup += '<table class="table table-hover">';
+		popup += (data['Hit or Killed?']? ("<tr><th>Hit or Killed?</th><td>" + data['Hit or Killed?'] + "</td></tr>") : '');
+		popup += (data['Armed or Unarmed?'] ? ("<tr><th>Armed or Unarmed?</th><td>" + data['Armed or Unarmed?'] + "<td></tr>") : '');
+		popup += (data['Victim Name'] ? ("<tr><th>Victim Name:</th><td>" + data['Victim Name'] + "<td></tr>") : '');
+		popup += (data['Victim\'s Age'] ? ("<tr><th>Victim\'s Age:</th><td>" + data['Victim\'s Age'] + "<td></tr>") : '');
+		popup += (data['Victim\'s Gender'] ? ("<tr><th>Victim\'s Gender:</th><td>" + data['Victim\'s Gender'] + "<td></tr>") : '');
+		popup += (data['Race'] ? ("<tr><th>Race:</th><td>" + data['Race'] + "<td></tr>") : '');
+		popup += '</table>';
+		popup += (data['Summary'] ? ('<h6>Summery:</h6>'+data['Summary'] + "<br>") : '');
 		if (data['Source Link']) {
 			var website = data['Source Link'].split("/");
-			popup += "Read more on <a target=\"_blank\" href=\"" + data['Source Link'] + "\">" + website[2] + "</a>";
+			popup += "<br>Read more on <a target=\"_blank\" href=\"" + data['Source Link'] + "\">" + website[2] + "</a>";
 		};
 		return popup;
 	}
