@@ -47,7 +47,7 @@ var map = (function() {
 	var getData = function() {
 
 	  // Execute an AJAX request to get the data in data/response.js
-		$.get("data/response.json", function(data){customBuild(data, 'age')});
+		$.get("data/response.json", function(data){customBuild(JSON.parse(data), 'age')});
 
 	  // When your request is successful, call your customBuild function
 
@@ -56,9 +56,8 @@ var map = (function() {
 	// Loop through your data and add the appropriate layers and points
 	var customBuild = function(newData, type) {
 		$('#loading').show();
-		data = JSON.parse(newData);
-
-		//data = newData;
+		
+		data = newData;
 
 		//console.log(map);
 		//unClustered.clearLayers();
