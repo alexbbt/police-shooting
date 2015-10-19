@@ -51,7 +51,7 @@ var map = (function() {
 	  layer.addTo(map);
 
 	  // Get map data with an Ajax Request
-		$.get("data/response.json", function(data){populateMap(JSON.parse(data), 'age')});
+		$.get("data/response.json", function(data){populateMap(/*JSON.parse*/(data), 'age')});
 	}
 
 	var populateMap = function(newData, type) {
@@ -109,11 +109,21 @@ var map = (function() {
 			circle.addTo(typeGroup[variable]);
 
 			var search = incedent['Agency Name'] + ' ' + 
+      						incedent['Timestamp'] + ' ' + 
       						incedent['Victim Name'] + ' ' + 
       						incedent['City'] + ' ' + 
       						incedent['County'] + ' ' + 
+      						incedent['Victim\'s Gender'] + ' ' + 
+      						incedent['Weapon'] + '' + 
+      						incedent['Race'] + ' ' + 
+      						incedent['Victim\'s Age'] + ' ' + 
+      						incedent['Armed or Unarmed?'] + ' ' + 
+      						incedent['Hit or Killed?'] + ' ' + 
       						incedent['Weapon'] + ' ' + 
-      						incedent['Summary'];
+      						incedent['lat'] + ' ' + 
+      						incedent['lng'] + ' ' + 
+      						incedent['Summary'] + ' ' + 
+      						incedent['Source Link'];
 
 			var kill = incedent['Hit or Killed?'];
 			if (kill == undefined) { kill = "Unknown"; };
