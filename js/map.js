@@ -12,7 +12,6 @@ var map = (function() {
 	var map;
 	var data;
 	var unClustered = new L.LayerGroup();
-	var clustered = new L.markerClusterGroup();
 	var controller;
 
 	self.drawMap = function() {
@@ -140,21 +139,17 @@ var map = (function() {
 		//console.log(typeGroup);
 		for (var group in typeGroup) {
 			//console.log(typeGroup[group]);
-			typeGroup[group].addTo(clustered);
 			typeGroup[group].addTo(unClustered);
 		};
 		//console.log(killed);
 		for (var group in killed) {
 			//console.log(group);
-			killed[group].addTo(clustered);
 			killed[group].addTo(unClustered);
 		};
 		//var combined = jQuery.extend(killed, typeGroup);
 		unClustered.addTo(map);
-		//clustered.addTo(map);
 		/*var cluster = {
-			"Unclustered": unClustered,
-			"Clustered": clustered
+			"Unclustered": unClustered
 		};*/
 		fillTable(table, data.length);
 		//L.control.layers(null,killed,{collapsed:false}).addTo(map);
