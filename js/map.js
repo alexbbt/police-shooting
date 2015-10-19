@@ -130,7 +130,7 @@ var map = (function() {
 		// Add title to controler
 		var h4 = document.createElement('h4');
 		h4.innerHTML = title;
-		$('.leaflet-control-layers').prepend(h4);
+		$('.leaflet-control-layers-list').prepend(h4);
 
 
 		$('#loading').hide(); // done loading
