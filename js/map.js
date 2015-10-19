@@ -65,7 +65,7 @@ var map = (function() {
 			if (type == 'age') {
 				title = 'Age';
 				var variable = data[i]['Victim\'s Age'];
-				if (variable > 150) {
+				if (variable == undefined || variable > 150) {
 					variable = "Unknown"; 
 				} else {
 					variable = (parseInt(variable / 20)+1);
@@ -127,7 +127,7 @@ var map = (function() {
 		// Add title to controler
 		var h4 = document.createElement('h4');
 		h4.innerHTML = title;
-		$('.leaflet-control-layers-expanded').prepend(h4);
+		$('.leaflet-control').prepend(h4);
 
 
 		$('#loading').hide(); // done loading
