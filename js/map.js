@@ -207,7 +207,7 @@ var map = (function() {
 		popup += (data['Victim\'s Gender'] ? ("<tr><th>Victim\'s Gender:</th><td>" + data['Victim\'s Gender'] + "<td></tr>") : '');
 		popup += (data['Race'] ? ("<tr><th>Race:</th><td>" + data['Race'] + "<td></tr>") : '');
 		popup += '</table>';
-		popup += (data['Summary'] ? ('<h6>Summery:</h6>'+data['Summary'] + "<br>") : '');
+		popup += (data['Summary'] ? ('<h6>Summary:</h6>'+data['Summary'] + "<br>") : '');
 
 		// create link to source
 		if (data['Source Link']) {
