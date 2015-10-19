@@ -45,7 +45,7 @@ var map = (function() {
 	  var mapboxKey = 'pk.eyJ1IjoiYWxleGJidCIsImEiOiJjaWZwdThvaWhhZDdsaXVseHVjMXluOGJvIn0.unltT8GfFsFml3Z6KrOMLA';
 	  var href = 'http://regressing.deadspin.com/deadspin-police-shooting-database-update-were-still-go-1627414202';
 	  var layer = L.tileLayer('https://api.mapbox.com/v4/'+mapColor+'/{z}/{x}/{y}.png?access_token=' + mapboxKey, {
-	  	attribution: '&copy; <a href="'+href+'">Deadspin</a> contributors'
+	  	attribution: '&copy; <a href="'+href+'" target="_blank">Deadspin</a> contributors'
 	  });
 
 	  layer.addTo(map);
