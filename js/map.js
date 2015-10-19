@@ -50,7 +50,7 @@ var map = (function() {
 	  layer.addTo(map);
 
 	  // Get map data with an Ajax Request
-		$.get("data/response.json", function(data){populateMap(/*JSON.parse*/(data), 'age')});
+		$.get("data/response.json", function(data){populateMap(JSON.parse(data), 'age')});
 	}
 
 	var populateMap = function(newData, type) {
