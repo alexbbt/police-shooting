@@ -184,7 +184,7 @@ var map = (function() {
 		popup += (data['Summary'] ? ('<h6>Summery:</h6>'+data['Summary'] + "<br>") : '');
 		if (data['Source Link']) {
 			var website = data['Source Link'].split("/");
-			popup += "<br>Read more on <a target=\"_blank\" href=\"" + data['Source Link'] + "\">" + website[2] + "</a>";
+			popup += "<br>Read more on <a target=\"_blank\" href=\"" + data['Source Link'] + "\">" + website[2] + "</a><br>";
 		};
 		return popup;
 	}
