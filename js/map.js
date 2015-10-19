@@ -29,6 +29,7 @@ var map = (function() {
 
 	self.redraw = function(type) {
 		$('#loading').show(); // incase Tabulation takes excessive time
+		$('#filter').unbind('keyup'); // remove search
 		map.removeControl(controller); //remove current controller
 		allLayers.clearLayers(); // clear out layers
 		populateMap(data, type); // re-add everything with new tabulation
