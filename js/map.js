@@ -121,13 +121,16 @@ var map = (function() {
 		fillTable(table, data.length);
 
 		// colapse if race, becasue they take a lot of space
-		controller = L.control.layers(null,typeGroup,{collapsed:((type == 'race') ? true : false)});
+		//controller = L.control.layers(null,typeGroup,{collapsed:((type == 'race') ? true : false)});
+
+		// always colapse controler
+		controller = L.control.layers(null,typeGroup,{collapsed: true });
 		controller.addTo(map);
 
 		// Add title to controler
 		var h4 = document.createElement('h4');
 		h4.innerHTML = title;
-		$('.leaflet-control').prepend(h4);
+		$('.leaflet-control-layers').prepend(h4);
 
 
 		$('#loading').hide(); // done loading
