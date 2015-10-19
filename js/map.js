@@ -29,7 +29,7 @@ var map = (function() {
 
 	self.redraw = function(type) {
 		$('#loading').show(); // incase Tabulation takes excessive time
-		$('#filter').unbind('keyup'); // remove search
+		$('#filter').unbind('keyup').val(''); // remove search
 		map.removeControl(controller); //remove current controller
 		allLayers.clearLayers(); // clear out layers
 		populateMap(data, type); // re-add everything with new tabulation
@@ -138,14 +138,12 @@ var map = (function() {
 						circle.addTo(map);
 						table[kill][variable]++;
 						total ++;
-						fillTable();
 					}
 				} else {
 					if (map.hasLayer(circle)) { // on map but should not be
 						map.removeLayer(circle);
 						table[kill][variable]--;
 						total --;
-						fillTable();
 					}              
 				}
 			});
@@ -166,6 +164,10 @@ var map = (function() {
 		// populate table with tabluated data
 		fillTable();
 
+		// redraw the table when a filter is preformed
+		$('#filter').keyup(function() {
+			fillTable();
+		});
 		// colapse if race, becasue they take a lot of space
 		//controller = L.control.layers(null,typeGroup,{collapsed:((type == 'race') ? true : false)});
 
