@@ -26,7 +26,10 @@
     <div id="container" class="container">
       <div class="row text-center">
         <h1>Police Shootings</h1>
-        <div class="col-xs-12 col-sm-4 col-sm-offset-4">
+        <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+          <input type="search" id="filter" class="form-control input-md" placeholder="type to filter incedents" autofocus/>
+        </div>
+        <div class="col-xs-12 col-sm-4">
           <div id="typeOuter" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
             <label for="type">View By:</label>
           </div>
@@ -48,7 +51,7 @@
       <!-- This is the div that your map will go in.  You'll need to reference its id -->
     </div>
     <div id="map"></div>
-    <div id="bottom"><a href="http://regressing.deadspin.com/deadspin-police-shooting-database-update-were-still-go-1627414202">Data from DeadSpin</a>: Click on a circle for details.</div>
+    <div id="bottom">Click on a circle for details.</div>
     <script>
       
       // This is where you should execute your drawMap function

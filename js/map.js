@@ -1,4 +1,6 @@
 $(document).ready(function() {
+	'use strict';
+
 	$('#loading').hide();
 	$('#type').change(function() {
 		map.redraw($('#type').val());
@@ -6,12 +8,20 @@ $(document).ready(function() {
 });
 
 var map = (function() {
+	'use strict';
+
 	var self = {};
 
 	var map;
 	var data;
 	var allLayers = new L.LayerGroup();
 	var controller;
+
+	var title;
+	var total;
+	var typeGroup; // variable to group by
+	var killed; // killed vs hit
+	var table; // table data store
 
 	self.drawMap = function() {
 		drawMap();
@@ -32,7 +42,10 @@ var map = (function() {
 
 	  var mapColor = 'mapbox.dark';
 	  var mapboxKey = 'pk.eyJ1IjoiYWxleGJidCIsImEiOiJjaWZwdThvaWhhZDdsaXVseHVjMXluOGJvIn0.unltT8GfFsFml3Z6KrOMLA';
-	  var layer = L.tileLayer('https://api.mapbox.com/v4/'+mapColor+'/{z}/{x}/{y}.png?access_token=' + mapboxKey);
+	  var href = 'http://regressing.deadspin.com/deadspin-police-shooting-database-update-were-still-go-1627414202';
+	  var layer = L.tileLayer('https://api.mapbox.com/v4/'+mapColor+'/{z}/{x}/{y}.png?access_token=' + mapboxKey, {
+	  	attribution: '&copy; <a href="'+href+'">Deadspin</a> contributors'
+	  });
 
 	  layer.addTo(map);
 
@@ -43,28 +56,32 @@ var map = (function() {
 	var populateMap = function(newData, type) {
 		data = newData; // store for future use
 		
-		var title;
-		var typeGroup = {}; // variable to group by
-		var killed = {}; // killed vs hit
-		var table = {
+		typeGroup = {}; // variable to group by
+		killed = {}; // killed vs hit
+		table = {
 			Unknown: {},
 			Hit: {}, 
 			Killed: {}
 		}; // table data store
-		for (var i = data.length - 1; i >= 0; i--) {
+		total = data.length;
+
+		data.forEach( function(incedent) {
+		//for (var i = data.length - 1; i >= 0; i--) {
 			var circle = new L.circleMarker(
-				[data[i]['lat'],
-				data[i]['lng']],
+				[
+				incedent['lat'],
+				incedent['lng']
+				],
 				{
-				color: ( (data[i]['Hit or Killed?'] == 'Killed')   ? 'red' : 'white') // color key
+				color: ( (incedent['Hit or Killed?'] == 'Killed')   ? 'red' : 'white') // color key
 				}
 			);
-
-			circle.bindPopup( fillPopup( data[i] ), {maxHeight: 250} ); // ask for popup based on current element
+			var popup = fillPopup( incedent );
+			circle.bindPopup( popup, {maxHeight: 250} ); // ask for popup based on current element
 
 			if (type == 'age') {
 				title = 'Age';
-				var variable = data[i]['Victim\'s Age'];
+				var variable = incedent['Victim\'s Age'];
 				if (variable == undefined || variable > 150) {
 					variable = "Unknown"; 
 				} else {
@@ -73,15 +90,15 @@ var map = (function() {
 				};
 			} else if (type == 'race') {
 				title = 'Race';
-				var variable = data[i]['Race'];
+				var variable = incedent['Race'];
 			} else if (type == 'gender') {
 				title = 'Gender';
-				var variable = data[i]['Victim\'s Gender'];
+				var variable = incedent['Victim\'s Gender'];
 			} else if (type == 'armed') {
 				title = 'Armed?'
-				var variable = data[i]['Armed or Unarmed?'];
+				var variable = incedent['Armed or Unarmed?'];
 			} else {
-				continue; // do nothing as no variable was selected
+				// do nothing as no variable was selected
 			};
 			if (variable == undefined) { variable = "Unknown"; };
 
@@ -90,7 +107,14 @@ var map = (function() {
 			}
 			circle.addTo(typeGroup[variable]);
 
-			var kill = data[i]['Hit or Killed?'];
+			var search = incedent['Agency Name'] + ' ' + 
+      						incedent['Victim Name'] + ' ' + 
+      						incedent['City'] + ' ' + 
+      						incedent['County'] + ' ' + 
+      						incedent['Weapon'] + ' ' + 
+      						incedent['Summary'];
+
+			var kill = incedent['Hit or Killed?'];
 			if (kill == undefined) { kill = "Unknown"; };
 			if (killed[kill] == null) {
 				killed[kill] = new L.LayerGroup([]);
@@ -104,7 +128,28 @@ var map = (function() {
 				}
 			};
 			table[kill][variable]++;
-		};
+
+			// filter by string in search
+			$('#filter').keyup(function() {
+				var filter = this.value.toLowerCase();
+				if (search.toLowerCase().indexOf(filter) != -1) {
+					if (!map.hasLayer(circle)) { // not on map but should be
+						circle.addTo(map);
+						table[kill][variable]++;
+						total ++;
+						fillTable();
+					}
+				} else {
+					if (map.hasLayer(circle)) { // on map but should not be
+						map.removeLayer(circle);
+						table[kill][variable]--;
+						total --;
+						fillTable();
+					}              
+				}
+			});
+
+		});
 
 		// add layer groups to master group
 		for (var group in typeGroup) {
@@ -118,7 +163,7 @@ var map = (function() {
 		allLayers.addTo(map);
 
 		// populate table with tabluated data
-		fillTable(table, data.length);
+		fillTable();
 
 		// colapse if race, becasue they take a lot of space
 		//controller = L.control.layers(null,typeGroup,{collapsed:((type == 'race') ? true : false)});
@@ -132,12 +177,13 @@ var map = (function() {
 		h4.innerHTML = title;
 		$('.leaflet-control-layers-list').prepend(h4);
 
-
 		$('#loading').hide(); // done loading
 	}
 
 	var fillPopup = function(data) {
 		var popup = "";
+
+		// if an atribute exists addd it to the popup
 		popup += (data['Agency Name'] ? ('<h4>'+ data['Agency Name'] + "</h4>") : '');
 		popup += (data['Timestamp'] ? ('<h5>'+ data['Timestamp'] + "</h5>") : '');
 		popup += '<table class="table table-hover">';
@@ -149,26 +195,44 @@ var map = (function() {
 		popup += (data['Race'] ? ("<tr><th>Race:</th><td>" + data['Race'] + "<td></tr>") : '');
 		popup += '</table>';
 		popup += (data['Summary'] ? ('<h6>Summery:</h6>'+data['Summary'] + "<br>") : '');
+
+		// create link to source
 		if (data['Source Link']) {
 			var website = data['Source Link'].split("/");
 			popup += "<br>Read more on <a target=\"_blank\" href=\"" + data['Source Link'] + "\">" + website[2] + "</a><br>";
 		};
+
 		return popup;
 	}
 
-	var fillTable = function(table, length) {
+	var fillTable = function() {
 		var t = document.getElementById('table');
 		t.innerHTML = '';
 		var thead = document.createElement('thead');
 		var thr = document.createElement('tr');
-		var total = document.createElement('th');
-		total.innerHTML = 'Total: ' + length;
-		thr.appendChild(total);
+		var totalCell = document.createElement('th');
+		totalCell.innerHTML = 'Total: ' + total;
+		thr.appendChild(totalCell);
+
+		// sort table by age (does nothing to other things)
+		var keys = Object.keys(table['Killed']).sort(function(a, b, attr) { 
+			if (a == 'Unknown') {
+				a = 9999;
+			} else {
+				a = a.split('-')[1];
+			};
+			if (b == 'Unknown') {
+				b = 9999;
+			} else {
+				b = b.split('-')[1];
+			};
+			return a - b;
+		});
 
 		// create column headers
-		for (var variable in table['Killed']) {
+		for (var variable in keys) {
 			var columnName = document.createElement('th');
-			columnName.innerHTML = variable;
+			columnName.innerHTML = keys[variable];
 			thr.appendChild(columnName);
 		}
 		thead.appendChild(thr);
@@ -179,13 +243,16 @@ var map = (function() {
 		for (var kill in table) {
 			var row = document.createElement('tr');
 			var rowHeader = document.createElement('th');
-			rowHeader.innerHTML = kill + '<svg><circle cx=12 cy=6 r=6 style="fill:' + ((kill  == 'Killed')   ? 'red' : 'white') + '" /></svg>';
+			rowHeader.innerHTML = kill + 
+					'<svg><circle cx=12 cy=6 r=6 style="fill:' + 
+					((kill  == 'Killed')   ? 'red' : 'white') + 
+					'" /></svg>';
 			row.appendChild(rowHeader);
-			for (var variable in table[kill]) {
+			for (var variable in keys) {
 				var data = document.createElement('td');
-				data.innerHTML = table[kill][variable] + 
+				data.innerHTML = table[kill][keys[variable]] + 
 						" <span class='small' ><span class='small' >(" + 
-						parseInt(10*(table[kill][variable] / length) * 100)/10 + 
+						parseInt(10*(table[kill][keys[variable]] / total) * 100)/10 + 
 						"%)</span></span>";
 				row.appendChild(data);
 			}
