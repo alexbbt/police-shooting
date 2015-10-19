@@ -1,7 +1,6 @@
 $(document).ready(function() {
 	$('#loading').hide();
 	$('#type').change(function() {
-		$('#loading').show();
 		map.redraw($('#type').val());
 	})
 });
@@ -11,7 +10,7 @@ var map = (function() {
 
 	var map;
 	var data;
-	var unClustered = new L.LayerGroup();
+	var allLayers = new L.LayerGroup();
 	var controller;
 
 	self.drawMap = function() {
@@ -19,149 +18,119 @@ var map = (function() {
 	};
 
 	self.redraw = function(type) {
-		map.removeControl(controller);
-		unClustered.clearLayers();
-		customBuild(data, type);
+		$('#loading').show(); // incase Tabulation takes excessive time
+		map.removeControl(controller); //remove current controller
+		allLayers.clearLayers(); // clear out layers
+		populateMap(data, type); // re-add everything with new tabulation
 	}
 
 
-	// Function to draw your map
 	var drawMap = function() {
-		$('#loading').show();
+		$('#loading').show(); // incase Ajax and Tabulation takes excessive time
 
-	  // Create map and set view
 	  map = L.map('map').setView([45, -97], 4, 0);
 
-	  // Create a tile layer variable using the appropriate url
-	  var layer = L.tileLayer('https://api.mapbox.com/v4/mapbox.dark/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiYWxleGJidCIsImEiOiJjaWZwdThvaWhhZDdsaXVseHVjMXluOGJvIn0.unltT8GfFsFml3Z6KrOMLA');
+	  var mapColor = 'mapbox.dark';
+	  var mapboxKey = 'pk.eyJ1IjoiYWxleGJidCIsImEiOiJjaWZwdThvaWhhZDdsaXVseHVjMXluOGJvIn0.unltT8GfFsFml3Z6KrOMLA';
+	  var layer = L.tileLayer('https://api.mapbox.com/v4/'+mapColor+'/{z}/{x}/{y}.png?access_token=' + mapboxKey);
 
-	  // Add the layer to your map
 	  layer.addTo(map);
 
-	  // Execute your function to get data
-	 getData();
+	  // Get map data with an Ajax Request
+		$.get("data/response.json", function(data){populateMap(JSON.parse(data), 'age')});
 	}
 
-	// Function for getting data
-	var getData = function() {
-
-	  // Execute an AJAX request to get the data in data/response.js
-		$.get("data/response.json", function(data){customBuild(JSON.parse(data), 'age')});
-
-	  // When your request is successful, call your customBuild function
-
-	}
-
-	// Loop through your data and add the appropriate layers and points
-	var customBuild = function(newData, type) {
-		$('#loading').show();
-		
-		data = newData;
-
-		//console.log(map);
-		//unClustered.clearLayers();
-
-		//console.log(data);
+	var populateMap = function(newData, type) {
+		data = newData; // store for future use
 		
 		var title;
-		var typeGroup = {};
-		var killed = {};
+		var typeGroup = {}; // variable to group by
+		var killed = {}; // killed vs hit
 		var table = {
 			Unknown: {},
 			Hit: {}, 
 			Killed: {}
-		};
-		//table = {};
-		//console.log(data.length);
+		}; // table data store
 		for (var i = data.length - 1; i >= 0; i--) {
-			//console.log(data[i]);
 			var circle = new L.circleMarker(
 				[data[i]['lat'],
 				data[i]['lng']],
 				{
-				color: ( (data[i]['Hit or Killed?'] == 'Killed')   ? 'red' : 'white')
+				color: ( (data[i]['Hit or Killed?'] == 'Killed')   ? 'red' : 'white') // color key
 				}
 			);
-			circle.bindPopup(fillPopup(data[i]), {maxHeight: 250});
+
+			circle.bindPopup( fillPopup( data[i] ), {maxHeight: 250} ); // ask for popup based on current element
+
 			if (type == 'age') {
 				title = 'Age';
 				var variable = data[i]['Victim\'s Age'];
-				if (variable == undefined || variable > 150) { variable = "Unknown"; }
-				else {
-					//console.log(variable);
+				if (variable > 150) {
+					variable = "Unknown"; 
+				} else {
 					variable = (parseInt(variable / 20)+1);
 					variable = ((variable*20-20) + '-' + (variable*20));
-					//console.log(variable);
 				};
 			} else if (type == 'race') {
 				title = 'Race';
 				var variable = data[i]['Race'];
-				if (variable == undefined) { variable = "Unknown"; };
 			} else if (type == 'gender') {
 				title = 'Gender';
 				var variable = data[i]['Victim\'s Gender'];
-				if (variable == undefined) { variable = "Unknown"; };
 			} else if (type == 'armed') {
 				title = 'Armed?'
 				var variable = data[i]['Armed or Unarmed?'];
-				if (variable == undefined) { variable = "Unknown"; };
 			} else {
-				continue;
+				continue; // do nothing as no variable was selected
 			};
-			if (typeGroup[variable] != null) {
-				circle.addTo(typeGroup[variable]);
-			} else {
-				typeGroup[variable] = new L.LayerGroup([]);
-				circle.addTo(typeGroup[variable]);
+			if (variable == undefined) { variable = "Unknown"; };
+
+			if (typeGroup[variable] == null) {
+				typeGroup[variable] = new L.LayerGroup([]); // create group if null
 			}
+			circle.addTo(typeGroup[variable]);
+
 			var kill = data[i]['Hit or Killed?'];
 			if (kill == undefined) { kill = "Unknown"; };
-			if (killed[kill] != null) {
-				circle.addTo(killed[kill]);
-			} else {
+			if (killed[kill] == null) {
 				killed[kill] = new L.LayerGroup([]);
-				circle.addTo(killed[kill]);
 			}
-			if (table[kill] == null) {
-				table[kill] = {};
-			};
-			if (table[kill][variable] != null) {
-				table[kill][variable]++;
-			} else {
+			circle.addTo(killed[kill]);
+
+			// add to table
+			if (table[kill][variable] == null) {
 				for (var Tkill in table) {
-					table[Tkill][variable] = 0;
+					table[Tkill][variable] = 0; // add column to every row
 				}
-				table[kill][variable]++;
 			};
-			//console.log(table);
-			//circle.addTo([kill]);
+			table[kill][variable]++;
 		};
-		//console.log(typeGroup);
+
+		// add layer groups to master group
 		for (var group in typeGroup) {
-			//console.log(typeGroup[group]);
-			typeGroup[group].addTo(unClustered);
+			typeGroup[group].addTo(allLayers);
 		};
-		//console.log(killed);
 		for (var group in killed) {
-			//console.log(group);
-			killed[group].addTo(unClustered);
+			killed[group].addTo(allLayers);
 		};
-		//var combined = jQuery.extend(killed, typeGroup);
-		unClustered.addTo(map);
-		/*var cluster = {
-			"Unclustered": unClustered
-		};*/
+
+		// add master group to map
+		allLayers.addTo(map);
+
+		// populate table with tabluated data
 		fillTable(table, data.length);
-		//L.control.layers(null,killed,{collapsed:false}).addTo(map);
+
+		// colapse if race, becasue they take a lot of space
 		controller = L.control.layers(null,typeGroup,{collapsed:((type == 'race') ? true : false)});
+		controller.addTo(map);
+
+		// Add title to controler
 		var h4 = document.createElement('h4');
 		h4.innerHTML = title;
-		$('.leaflet-control-layers-expanded').prepend('<hr>');
 		$('.leaflet-control-layers-expanded').prepend(h4);
-		controller.addTo(map);
-		$('#loading').hide();
-		// Once layers are on the map, add a leaflet controller that shows/hides layers
-	  
+
+
+		$('#loading').hide(); // done loading
 	}
 
 	var fillPopup = function(data) {
@@ -185,7 +154,6 @@ var map = (function() {
 	}
 
 	var fillTable = function(table, length) {
-		//console.log(table);
 		var t = document.getElementById('table');
 		t.innerHTML = '';
 		var thead = document.createElement('thead');
@@ -193,8 +161,9 @@ var map = (function() {
 		var total = document.createElement('th');
 		total.innerHTML = 'Total: ' + length;
 		thr.appendChild(total);
+
+		// create column headers
 		for (var variable in table['Killed']) {
-			//console.log(table[kill][variable]);
 			var columnName = document.createElement('th');
 			columnName.innerHTML = variable;
 			thr.appendChild(columnName);
@@ -202,20 +171,19 @@ var map = (function() {
 		thead.appendChild(thr);
 		t.appendChild(thead);
 		var tbody = document.createElement('tbody');
+
+		// create data rows
 		for (var kill in table) {
-			//console.log(table[kill]);
 			var row = document.createElement('tr');
 			var rowHeader = document.createElement('th');
 			rowHeader.innerHTML = kill + '<svg><circle cx=12 cy=6 r=6 style="fill:' + ((kill  == 'Killed')   ? 'red' : 'white') + '" /></svg>';
 			row.appendChild(rowHeader);
 			for (var variable in table[kill]) {
-				//console.log(table[kill][variable]);
 				var data = document.createElement('td');
-//				console.log(data.length);
-//				console.log(table[kill][variable]);
-//				console.log(table[kill][variable] / data.length);
-//				console.log((table[kill][variable] / data.length) * 100);
-				data.innerHTML = table[kill][variable] + " <span class='small' ><span class='small' >(" + parseInt(10*(table[kill][variable] / length) * 100)/10 + "%)</span></span>";
+				data.innerHTML = table[kill][variable] + 
+						" <span class='small' ><span class='small' >(" + 
+						parseInt(10*(table[kill][variable] / length) * 100)/10 + 
+						"%)</span></span>";
 				row.appendChild(data);
 			}
 			tbody.appendChild(row);
@@ -223,7 +191,5 @@ var map = (function() {
 		t.appendChild(tbody);
 	}
 
-
-
-	return self;
+	return self; // public methods
 }());
